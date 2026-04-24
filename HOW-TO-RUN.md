@@ -46,4 +46,4 @@ Open terminal :
 copy and paste
 
 cd "C:\Users\j.park\OneDrive - INNOCEAN EUROPE\Desktop\Spendalyze"
-PS C:\Users\j.park\OneDrive - INNOCEAN EUROPE\Desktop\Spendalyze> .\start.ps1
+.\start.ps1
