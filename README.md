@@ -23,7 +23,7 @@ Then open http://localhost:3000
 
 ## Features
 
-- Multi-file Excel upload (BRED / HSBC bank formats)
+- Multi-file Excel upload
 - In-memory parsing (no file persistence)
 - Trends by month/quarter/year
 - Category breakdown with drill-down
