@@ -5,6 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer,
 } from "recharts";
+import { useT } from "@/lib/i18n/context";
 import type { TrendData } from "@/lib/types";
 
 // ── colour palettes ──────────────────────────────────────────────────────────
@@ -38,10 +39,9 @@ function buildTimelineData(trends: TrendData[], bankFilter: string, selectedYear
     .map(([period, vals]) => ({ period, ...vals }));
 }
 
-const MONTH_LABELS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
-const MONTH_KEYS   = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+const MONTH_KEYS = ["01","02","03","04","05","06","07","08","09","10","11","12"];
 
-function buildYoyData(trends: TrendData[], bankFilter: string, selectedYears: number[]) {
+function buildYoyData(trends: TrendData[], bankFilter: string, selectedYears: number[], monthLabels: string[]) {
   const yearSet = new Set(selectedYears);
   const filtered = trends
     .filter((t) => bankFilter === "all" || t.bank === bankFilter)
@@ -50,7 +50,7 @@ function buildYoyData(trends: TrendData[], bankFilter: string, selectedYears: nu
   const years = [...new Set(filtered.map((t) => t.year))].sort();
 
   return MONTH_KEYS.map((m, idx) => {
-    const row: Record<string, number | string> = { month: MONTH_LABELS[idx] };
+    const row: Record<string, number | string> = { month: monthLabels[idx] };
     for (const y of years) {
       const total = filtered
         .filter((t) => t.year === y && t.period.slice(-2) === m)
@@ -79,10 +79,11 @@ interface Props {
 type ViewMode = "timeline" | "yoy";
 
 export function TrendChart({ trends, bankFilter, selectedYears }: Props) {
+  const { t, months } = useT();
   const [mode, setMode] = useState<ViewMode>("timeline");
 
   const timelineData = buildTimelineData(trends, bankFilter, selectedYears);
-  const yoyData      = buildYoyData(trends, bankFilter, selectedYears);
+  const yoyData      = buildYoyData(trends, bankFilter, selectedYears, months);
   const banks        = getVisibleBanks(trends, bankFilter);
 
   const yearSet = new Set(selectedYears);
@@ -106,7 +107,7 @@ export function TrendChart({ trends, bankFilter, selectedYears }: Props) {
                 : "bg-white text-slate-500 hover:bg-slate-50"
             }`}
           >
-            타임라인
+            {t("view_timeline")}
           </button>
           <button
             onClick={() => setMode("yoy")}
@@ -116,7 +117,7 @@ export function TrendChart({ trends, bankFilter, selectedYears }: Props) {
                 : "bg-white text-slate-500 hover:bg-slate-50"
             }`}
           >
-            연도별 비교
+            {t("view_yoy")}
           </button>
         </div>
       </div>

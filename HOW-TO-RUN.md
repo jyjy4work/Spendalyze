@@ -39,3 +39,11 @@ docker compose up --build
 - **Port 3000 or 8000 already in use**: Stop whatever is using those ports, or edit `docker-compose.yml` and change the left side of `"3000:3000"` to e.g. `"3001:3000"`.
 - **"Cannot connect to Docker daemon"**: Docker Desktop is not running. Start it first.
 - **Frontend shows "Backend unreachable"**: Wait ~20 seconds after start — backend takes a moment to boot on first run.
+
+
+## Or without Docker Desktop
+Open terminal : 
+copy and paste
+
+cd "C:\Users\j.park\OneDrive - INNOCEAN EUROPE\Desktop\Spendalyze"
+PS C:\Users\j.park\OneDrive - INNOCEAN EUROPE\Desktop\Spendalyze> .\start.ps1

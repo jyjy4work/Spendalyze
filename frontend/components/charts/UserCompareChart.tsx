@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, LineChart, Line, Cell,
 } from "recharts";
 import { useState, useMemo, useRef, useEffect } from "react";
+import { useT } from "@/lib/i18n/context";
 import type { UserData, Transaction } from "@/lib/types";
 
 const USER_COLORS = ["#4F46E5", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4"];
@@ -29,10 +30,11 @@ function getUserColor(users: UserData[], name: string): string {
 }
 
 /** Simple tooltip — total only (year detail lives in chip row below) */
-function UserTooltip({ active, payload, users }: {
+function UserTooltip({ active, payload, users, t }: {
   active?: boolean;
   payload?: { payload: { name: string } }[];
   users: UserData[];
+  t: (k: string) => string;
 }) {
   if (!active || !payload?.length) return null;
   const u = users.find((x) => x.cardholder === payload[0].payload.name);
@@ -41,14 +43,14 @@ function UserTooltip({ active, payload, users }: {
     <div className="bg-white border border-slate-200 rounded-lg shadow-md p-2.5 min-w-[180px]">
       <p className="font-semibold text-slate-800 text-sm mb-1">{u.cardholder}</p>
       <div className="flex justify-between text-xs">
-        <span className="text-slate-400">총 지출</span>
+        <span className="text-slate-400">{t("total_spend")}</span>
         <span className="font-bold text-indigo-600">{euFmt(u.totalAmount)}</span>
       </div>
       <div className="flex justify-between text-xs mt-1">
-        <span className="text-slate-400">건수</span>
-        <span className="font-medium text-slate-700">{u.totalCount.toLocaleString()}건</span>
+        <span className="text-slate-400">{t("count")}</span>
+        <span className="font-medium text-slate-700">{u.totalCount.toLocaleString()}{t("unit_items")}</span>
       </div>
-      <p className="text-[10px] text-indigo-500 mt-2 pt-2 border-t border-slate-100">👉 클릭해서 연도별 상세 보기</p>
+      <p className="text-[10px] text-indigo-500 mt-2 pt-2 border-t border-slate-100">{t("click_for_year_detail")}</p>
     </div>
   );
 }
@@ -59,6 +61,7 @@ interface Props {
 }
 
 export function UserCompareChart({ users, transactions }: Props) {
+  const { t, yearLabel } = useT();
   // Auto-select the first (highest-spending) user on mount so the chip row is always visible
   const [selectedUser, setSelectedUser] = useState<string | null>(users[0]?.cardholder ?? null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
@@ -182,8 +185,8 @@ export function UserCompareChart({ users, transactions }: Props) {
       {/* ── Summary bar chart ─────────────────────────────────────────── */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-slate-600">사용자별 총 지출</p>
-          <p className="text-xs text-slate-400">막대 클릭 → 해당 사용자 선택</p>
+          <p className="text-sm font-medium text-slate-600">{t("user_total_spend")}</p>
+          <p className="text-xs text-slate-400">{t("click_bar_select_user")}</p>
         </div>
         <div className="h-52" style={{ overflow: "visible" }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -197,7 +200,7 @@ export function UserCompareChart({ users, transactions }: Props) {
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748b" }} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(v) => `€${(v / 1000).toFixed(0)}k`} tickLine={false} />
               <Tooltip
-                content={<UserTooltip users={users} />}
+                content={<UserTooltip users={users} t={t} />}
                 cursor={{ fill: "#f8fafc" }}
                 wrapperStyle={{ overflow: "visible", zIndex: 50 }}
               />
@@ -229,7 +232,7 @@ export function UserCompareChart({ users, transactions }: Props) {
             <span className="w-3 h-3 rounded-full" style={{ background: userColor }} />
             <span className="text-sm font-semibold text-slate-700">{userData.cardholder}</span>
           </div>
-          <span className="text-xs text-slate-400 shrink-0">· 연도 선택 →</span>
+          <span className="text-xs text-slate-400 shrink-0">{t("year_select_tip")}</span>
           <button
             onClick={() => {
               setSelectedYear(null);
@@ -241,7 +244,7 @@ export function UserCompareChart({ users, transactions }: Props) {
                 : "bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600"
             }`}
           >
-            전체
+            {t("all")}
           </button>
           {years.map(({ year, amount }) => (
             <button
@@ -257,7 +260,7 @@ export function UserCompareChart({ users, transactions }: Props) {
                   ? { background: userColor, borderColor: userColor }
                   : {}
               }
-              title={`${year}년: ${euFmt(amount)}`}
+              title={`${yearLabel(year)}: ${euFmt(amount)}`}
             >
               {year}
             </button>
@@ -276,14 +279,14 @@ export function UserCompareChart({ users, transactions }: Props) {
               <span className="font-semibold text-slate-800">{userData.cardholder}</span>
               {selectedYear && (
                 <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: userColor }}>
-                  {selectedYear}년
+                  {yearLabel(selectedYear)}
                 </span>
               )}
             </div>
             <div className="flex gap-6 text-sm">
-              <span className="text-slate-500">총 지출 <b className="text-slate-800">{euFmt(scopedTotals.total)}</b></span>
-              <span className="text-slate-500">건수 <b className="text-slate-800">{scopedTotals.count.toLocaleString()}건</b></span>
-              <span className="text-slate-500">평균 <b className="text-slate-800">{euFmt(scopedTotals.avg)}</b></span>
+              <span className="text-slate-500">{t("total_spend")} <b className="text-slate-800">{euFmt(scopedTotals.total)}</b></span>
+              <span className="text-slate-500">{t("count")} <b className="text-slate-800">{scopedTotals.count.toLocaleString()}{t("unit_items")}</b></span>
+              <span className="text-slate-500">{t("average")} <b className="text-slate-800">{euFmt(scopedTotals.avg)}</b></span>
             </div>
           </div>
 
@@ -291,8 +294,8 @@ export function UserCompareChart({ users, transactions }: Props) {
           <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
             {/* ① Year breakdown — clickable bars */}
             <div className="p-4">
-              <p className="text-xs font-medium text-slate-500 mb-1">연도별 지출</p>
-              <p className="text-[10px] text-slate-400 mb-2">막대 클릭 → 해당 연도 거래 내역</p>
+              <p className="text-xs font-medium text-slate-500 mb-1">{t("year_breakdown")}</p>
+              <p className="text-[10px] text-slate-400 mb-2">{t("click_bar_for_year")}</p>
               <div className="h-44">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -328,7 +331,7 @@ export function UserCompareChart({ users, transactions }: Props) {
             {/* ② Monthly trend */}
             <div className="p-4">
               <p className="text-xs font-medium text-slate-500 mb-3">
-                월별 추이 {selectedYear ? <span className="text-indigo-500">({selectedYear})</span> : ""}
+                {t("monthly_progression")} {selectedYear ? <span className="text-indigo-500">({selectedYear})</span> : ""}
               </p>
               <div className="h-44">
                 <ResponsiveContainer width="100%" height="100%">
@@ -346,11 +349,11 @@ export function UserCompareChart({ users, transactions }: Props) {
             {/* ③ Top merchants — scoped to year filter */}
             <div className="p-4">
               <p className="text-xs font-medium text-slate-500 mb-3">
-                주요 가맹점 Top 5 {selectedYear ? <span className="text-indigo-500">({selectedYear})</span> : ""}
+                {t("top_merchants_5")} {selectedYear ? <span className="text-indigo-500">({selectedYear})</span> : ""}
               </p>
               <div className="space-y-2">
                 {topMerchants.length === 0 ? (
-                  <p className="text-xs text-slate-400">데이터 없음</p>
+                  <p className="text-xs text-slate-400">{t("no_data")}</p>
                 ) : (
                   topMerchants.map((m, i) => {
                     const pct = scopedTotals.total > 0 ? (m.amount / scopedTotals.total) * 100 : 0;
@@ -376,21 +379,21 @@ export function UserCompareChart({ users, transactions }: Props) {
             {/* Title bar */}
             <div className="px-5 py-3 flex items-center justify-between bg-slate-50 flex-wrap gap-2">
               <p className="text-sm font-medium text-slate-700">
-                거래 내역
+                {t("tx_history")}
                 {selectedYear
-                  ? <span className="ml-2 text-xs text-indigo-600 font-semibold">{selectedYear}년</span>
-                  : <span className="ml-2 text-xs text-slate-400">전체 기간</span>}
+                  ? <span className="ml-2 text-xs text-indigo-600 font-semibold">{yearLabel(selectedYear)}</span>
+                  : <span className="ml-2 text-xs text-slate-400">{t("whole_period")}</span>}
                 <span className="ml-2 text-xs text-slate-400">
                   ({visibleTxns.length.toLocaleString()}
-                  {hasFilter ? ` / ${drillTxns.length.toLocaleString()}` : ""}건)
+                  {hasFilter ? ` / ${drillTxns.length.toLocaleString()}` : ""}{t("unit_items")})
                 </span>
                 <span className="ml-3 text-xs text-slate-500">
-                  합계 <b className="text-slate-800 tabular-nums">{euFmt(visibleTotal)}</b>
+                  {t("sum")} <b className="text-slate-800 tabular-nums">{euFmt(visibleTotal)}</b>
                 </span>
               </p>
               {selectedYear && (
                 <button onClick={() => setSelectedYear(null)} className="text-xs text-slate-400 hover:text-slate-600 underline">
-                  전체 기간 보기
+                  {t("view_whole_period")}
                 </button>
               )}
             </div>
@@ -407,14 +410,14 @@ export function UserCompareChart({ users, transactions }: Props) {
                   type="text"
                   value={txSearch}
                   onChange={(e) => setTxSearch(e.target.value)}
-                  placeholder="가맹점·카테고리·금액·날짜 검색..."
+                  placeholder={t("search_placeholder_user")}
                   className="w-full pl-8 pr-8 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100"
                 />
                 {txSearch && (
                   <button
                     onClick={() => setTxSearch("")}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm leading-none"
-                    aria-label="검색어 지우기"
+                    aria-label={t("clear_search")}
                   >
                     ✕
                   </button>
@@ -423,7 +426,7 @@ export function UserCompareChart({ users, transactions }: Props) {
 
               {/* Bank filter */}
               <div className="flex items-center gap-1">
-                <span className="text-[10px] text-slate-400 mr-1">은행</span>
+                <span className="text-[10px] text-slate-400 mr-1">{t("bank")}</span>
                 {(["all", "BRED", "HSBC"] as const).map((b) => (
                   <button
                     key={b}
@@ -434,14 +437,14 @@ export function UserCompareChart({ users, transactions }: Props) {
                         : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
                     }`}
                   >
-                    {b === "all" ? "전체" : b}
+                    {b === "all" ? t("all") : b}
                   </button>
                 ))}
               </div>
 
               {/* Receipt filter */}
               <div className="flex items-center gap-1">
-                <span className="text-[10px] text-slate-400 mr-1">영수증</span>
+                <span className="text-[10px] text-slate-400 mr-1">{t("col_receipt")}</span>
                 {(["all", "yes", "no"] as const).map((r) => (
                   <button
                     key={r}
@@ -452,23 +455,23 @@ export function UserCompareChart({ users, transactions }: Props) {
                         : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
                     }`}
                   >
-                    {r === "all" ? "전체" : r === "yes" ? "있음" : "없음"}
+                    {r === "all" ? t("all") : r === "yes" ? t("receipt_yes") : t("receipt_no")}
                   </button>
                 ))}
               </div>
 
               {/* Sort */}
               <div className="flex items-center gap-1 ml-auto">
-                <span className="text-[10px] text-slate-400 mr-1">정렬</span>
+                <span className="text-[10px] text-slate-400 mr-1">{t("sort")}</span>
                 <select
                   value={txSort}
                   onChange={(e) => setTxSort(e.target.value as typeof txSort)}
                   className="text-xs px-2 py-1 border border-slate-200 rounded-md bg-white text-slate-600 focus:outline-none focus:border-indigo-400"
                 >
-                  <option value="date-desc">날짜 ↓ (최신순)</option>
-                  <option value="date-asc">날짜 ↑ (오래된순)</option>
-                  <option value="amount-desc">금액 ↓ (큰순)</option>
-                  <option value="amount-asc">금액 ↑ (작은순)</option>
+                  <option value="date-desc">{t("sort_date_desc_latest")}</option>
+                  <option value="date-asc">{t("sort_date_asc_oldest")}</option>
+                  <option value="amount-desc">{t("sort_amount_desc_big")}</option>
+                  <option value="amount-asc">{t("sort_amount_asc_small")}</option>
                 </select>
               </div>
 
@@ -478,7 +481,7 @@ export function UserCompareChart({ users, transactions }: Props) {
                   onClick={() => { setTxSearch(""); setTxBank("all"); setTxReceipt("all"); }}
                   className="text-xs text-slate-400 hover:text-slate-700 underline ml-1"
                 >
-                  필터 초기화
+                  {t("reset_filter")}
                 </button>
               )}
             </div>
@@ -487,18 +490,18 @@ export function UserCompareChart({ users, transactions }: Props) {
             <div className="overflow-x-auto max-h-96 overflow-y-auto border-t border-slate-100">
               {visibleTxns.length === 0 ? (
                 <div className="p-8 text-center text-xs text-slate-400">
-                  {drillTxns.length === 0 ? "해당 기간 거래가 없습니다" : "검색 결과가 없습니다"}
+                  {drillTxns.length === 0 ? t("no_tx_for_period") : t("no_search_result")}
                 </div>
               ) : (
                 <table className="w-full text-xs">
                   <thead className="sticky top-0 bg-white border-b border-slate-100 z-10">
                     <tr className="text-slate-400 uppercase tracking-wide">
-                      <th className="px-4 py-2 text-left font-medium">날짜</th>
-                      <th className="px-4 py-2 text-left font-medium">가맹점</th>
-                      <th className="px-4 py-2 text-right font-medium">금액</th>
-                      <th className="px-4 py-2 text-left font-medium">카테고리</th>
-                      <th className="px-4 py-2 text-left font-medium">은행</th>
-                      <th className="px-4 py-2 text-center font-medium">영수증</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("col_date")}</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("col_merchant")}</th>
+                      <th className="px-4 py-2 text-right font-medium">{t("col_amount")}</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("col_category")}</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("col_bank")}</th>
+                      <th className="px-4 py-2 text-center font-medium">{t("col_receipt")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">

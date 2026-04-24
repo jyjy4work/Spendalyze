@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useT } from "@/lib/i18n/context";
 import type { Summary } from "@/lib/types";
 
 function fmt(n: number) {
@@ -12,26 +13,31 @@ function fmt(n: number) {
 }
 
 export function SummaryCards({ summary }: { summary: Summary }) {
+  const { t, yearLabel } = useT();
   const { totalAmount, totalCount, uniqueUsers, banks, dateRange, years } = summary;
+
+  const yearsLabel = years.length > 1
+    ? `${years[0]}–${years[years.length - 1]}`
+    : String(years[0]);
 
   const cards = [
     {
-      label: "총 지출",
+      label: t("summary_total"),
       value: fmt(totalAmount),
-      sub: `${years.length > 1 ? `${years[0]}–${years[years.length - 1]}` : years[0]}년`,
+      sub: yearLabel(yearsLabel),
     },
     {
-      label: "총 건수",
-      value: totalCount.toLocaleString() + "건",
+      label: t("summary_count"),
+      value: totalCount.toLocaleString() + t("unit_items"),
       sub: banks.join(" + "),
     },
     {
-      label: "카드 사용자",
-      value: uniqueUsers.length + "명",
+      label: t("summary_users"),
+      value: `${uniqueUsers.length}${t("unit_people")}`,
       sub: uniqueUsers.join(", "),
     },
     {
-      label: "분석 기간",
+      label: t("summary_period"),
       value: dateRange.start.slice(0, 7),
       sub: `~ ${dateRange.end.slice(0, 7)}`,
     },

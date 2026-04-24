@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AnalysisProvider } from "@/app/context/AnalysisContext";
+import { LanguageProvider } from "@/lib/i18n/context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Spendalyze",
-  description: "법인카드 지출 내역 분석 대시보드",
+  description: "Corporate card expense analytics",
 };
 
 export default function RootLayout({
@@ -30,7 +31,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <AnalysisProvider>{children}</AnalysisProvider>
+        <LanguageProvider>
+          <AnalysisProvider>{children}</AnalysisProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { useT } from "@/lib/i18n/context";
 import type { CategoryData, Transaction } from "@/lib/types";
 
 const COLORS = [
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export function CategoryChart({ categories, transactions }: Props) {
+  const { t } = useT();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   // Tx table filters
@@ -105,7 +107,7 @@ export function CategoryChart({ categories, transactions }: Props) {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Pie Chart + legend buttons as reliable click target */}
         <div>
-          <p className="text-sm font-medium text-slate-600 mb-3 text-center">비율 · 아래 버튼 클릭 → 상세</p>
+          <p className="text-sm font-medium text-slate-600 mb-3 text-center">{t("ratio_tip")}</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -173,7 +175,7 @@ export function CategoryChart({ categories, transactions }: Props) {
 
         {/* Bar Chart with HTML button row for reliable clicks */}
         <div>
-          <p className="text-sm font-medium text-slate-600 mb-3 text-center">금액 · 막대 또는 카드 클릭 → 상세</p>
+          <p className="text-sm font-medium text-slate-600 mb-3 text-center">{t("amount_tip")}</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -237,19 +239,19 @@ export function CategoryChart({ categories, transactions }: Props) {
             </div>
             <div className="flex gap-6 text-sm">
               <span className="text-slate-500">
-                총 지출 <b className="text-slate-800">{euFmt(visibleTotal)}</b>
+                {t("total_spend")} <b className="text-slate-800">{euFmt(visibleTotal)}</b>
                 {hasFilter && <span className="text-xs text-slate-400 ml-1">/ {euFmt(selectedCategory.amount)}</span>}
               </span>
               <span className="text-slate-500">
-                건수 <b className="text-slate-800">{visibleTxns.length.toLocaleString()}건</b>
+                {t("count")} <b className="text-slate-800">{visibleTxns.length.toLocaleString()}{t("unit_items")}</b>
                 {hasFilter && <span className="text-xs text-slate-400 ml-1">/ {selectedCategory.count.toLocaleString()}</span>}
               </span>
-              <span className="text-slate-500">비중 <b className="text-slate-800">{selectedCategory.percentage.toFixed(1)}%</b></span>
+              <span className="text-slate-500">{t("share")} <b className="text-slate-800">{selectedCategory.percentage.toFixed(1)}%</b></span>
             </div>
             <button
               onClick={() => setSelectedCat(null)}
               className="text-slate-400 hover:text-slate-600 text-lg leading-none"
-              aria-label="닫기"
+              aria-label={t("close")}
             >
               ✕
             </button>
@@ -266,7 +268,7 @@ export function CategoryChart({ categories, transactions }: Props) {
                 type="text"
                 value={txSearch}
                 onChange={(e) => setTxSearch(e.target.value)}
-                placeholder="가맹점·사용자·금액·날짜 검색..."
+                placeholder={t("search_placeholder_cat")}
                 className="w-full pl-8 pr-8 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100"
               />
               {txSearch && (
@@ -280,7 +282,7 @@ export function CategoryChart({ categories, transactions }: Props) {
             </div>
 
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-slate-400 mr-1">은행</span>
+              <span className="text-[10px] text-slate-400 mr-1">{t("bank")}</span>
               {(["all", "BRED", "HSBC"] as const).map((b) => (
                 <button
                   key={b}
@@ -291,22 +293,22 @@ export function CategoryChart({ categories, transactions }: Props) {
                       : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
                   }`}
                 >
-                  {b === "all" ? "전체" : b}
+                  {b === "all" ? t("all") : b}
                 </button>
               ))}
             </div>
 
             <div className="flex items-center gap-1 ml-auto">
-              <span className="text-[10px] text-slate-400 mr-1">정렬</span>
+              <span className="text-[10px] text-slate-400 mr-1">{t("sort")}</span>
               <select
                 value={txSort}
                 onChange={(e) => setTxSort(e.target.value as typeof txSort)}
                 className="text-xs px-2 py-1 border border-slate-200 rounded-md bg-white text-slate-600 focus:outline-none focus:border-indigo-400"
               >
-                <option value="date-desc">날짜 ↓</option>
-                <option value="date-asc">날짜 ↑</option>
-                <option value="amount-desc">금액 ↓</option>
-                <option value="amount-asc">금액 ↑</option>
+                <option value="date-desc">{t("sort_date_desc")}</option>
+                <option value="date-asc">{t("sort_date_asc")}</option>
+                <option value="amount-desc">{t("sort_amount_desc")}</option>
+                <option value="amount-asc">{t("sort_amount_asc")}</option>
               </select>
             </div>
 
@@ -315,7 +317,7 @@ export function CategoryChart({ categories, transactions }: Props) {
                 onClick={() => { setTxSearch(""); setTxBank("all"); }}
                 className="text-xs text-slate-400 hover:text-slate-700 underline"
               >
-                필터 초기화
+                {t("reset_filter")}
               </button>
             )}
           </div>
@@ -324,18 +326,18 @@ export function CategoryChart({ categories, transactions }: Props) {
           <div className="overflow-x-auto max-h-96 overflow-y-auto">
             {visibleTxns.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
-                {catTxns.length === 0 ? "이 카테고리에 거래가 없습니다" : "검색 결과가 없습니다"}
+                {catTxns.length === 0 ? t("no_tx_in_cat") : t("no_search_result")}
               </div>
             ) : (
               <table className="w-full text-xs">
                 <thead className="sticky top-0 bg-white border-b border-slate-100 z-10">
                   <tr className="text-slate-400 uppercase tracking-wide">
-                    <th className="px-4 py-2 text-left font-medium">날짜</th>
-                    <th className="px-4 py-2 text-left font-medium">사용자</th>
-                    <th className="px-4 py-2 text-left font-medium">가맹점</th>
-                    <th className="px-4 py-2 text-right font-medium">금액</th>
-                    <th className="px-4 py-2 text-left font-medium">은행</th>
-                    <th className="px-4 py-2 text-center font-medium">영수증</th>
+                    <th className="px-4 py-2 text-left font-medium">{t("col_date")}</th>
+                    <th className="px-4 py-2 text-left font-medium">{t("col_user")}</th>
+                    <th className="px-4 py-2 text-left font-medium">{t("col_merchant")}</th>
+                    <th className="px-4 py-2 text-right font-medium">{t("col_amount")}</th>
+                    <th className="px-4 py-2 text-left font-medium">{t("col_bank")}</th>
+                    <th className="px-4 py-2 text-center font-medium">{t("col_receipt")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">

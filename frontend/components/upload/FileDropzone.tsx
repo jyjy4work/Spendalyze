@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileSpreadsheet, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   files: File[];
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function FileDropzone({ files, onChange }: Props) {
+  const { t } = useT();
   const onDrop = useCallback(
     (accepted: File[]) => {
       const xlsxOnly = accepted.filter((f) => f.name.endsWith(".xlsx"));
@@ -43,13 +45,13 @@ export function FileDropzone({ files, onChange }: Props) {
         <input {...getInputProps()} />
         <Upload className="mx-auto h-10 w-10 text-slate-400 mb-3" />
         {isDragActive ? (
-          <p className="text-indigo-600 font-medium">파일을 여기에 놓으세요</p>
+          <p className="text-indigo-600 font-medium">{t("drop_here")}</p>
         ) : (
           <>
             <p className="text-slate-700 font-medium">
-              엑셀 파일을 드래그하거나 클릭하여 업로드
+              {t("drag_or_click")}
             </p>
-            <p className="text-slate-400 text-sm mt-1">.xlsx 형식만 지원 · 여러 파일 동시 업로드 가능</p>
+            <p className="text-slate-400 text-sm mt-1">{t("xlsx_only")}</p>
           </>
         )}
       </div>

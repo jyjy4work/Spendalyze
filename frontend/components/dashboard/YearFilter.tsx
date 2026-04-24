@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/context";
+
 interface Props {
   years: number[];
   selected: number[];
@@ -7,6 +9,7 @@ interface Props {
 }
 
 export function YearFilter({ years, selected, onChange }: Props) {
+  const { t } = useT();
   const allSelected = selected.length === 0 || selected.length === years.length;
 
   function toggle(year: number) {
@@ -33,7 +36,7 @@ export function YearFilter({ years, selected, onChange }: Props) {
             : "bg-slate-100 text-slate-500 hover:bg-slate-200"
         }`}
       >
-        전체
+        {t("all")}
       </button>
       {years.map((y) => {
         const active = !allSelected && selected.includes(y);

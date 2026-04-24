@@ -14,9 +14,12 @@ import { MerchantChart } from "@/components/charts/MerchantChart";
 import { AnomalyTable } from "@/components/charts/AnomalyTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabNavigation } from "@/components/dashboard/TabNavigation";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useT } from "@/lib/i18n/context";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { t } = useT();
   const {
     result,
     selectedBank, setSelectedBank,
@@ -100,11 +103,12 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <BankFilter value={selectedBank} onChange={setSelectedBank} banks={banks} />
+            <LanguageSwitcher />
             <button
               onClick={() => router.push("/")}
               className="text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg px-3 py-1.5 transition-colors hover:bg-slate-50"
             >
-              + 파일 추가
+              {t("add_file")}
             </button>
           </div>
         </div>
@@ -117,7 +121,7 @@ export default function DashboardPage() {
         {/* ── Year Filter bar ─────────────────────────────────────────────── */}
         <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-medium text-slate-500 whitespace-nowrap">연도 필터</span>
+            <span className="text-xs font-medium text-slate-500 whitespace-nowrap">{t("year_filter")}</span>
             <YearFilter years={allYears} selected={selectedYears} onChange={setSelectedYears} />
           </div>
         </div>
@@ -133,7 +137,7 @@ export default function DashboardPage() {
         {activeTab === "trends" && (
           <Card className="border-slate-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-slate-700">월별 지출 트렌드</CardTitle>
+              <CardTitle className="text-base text-slate-700">{t("monthly_trend_title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <TrendChart trends={filteredTrends} bankFilter={selectedBank} selectedYears={selectedYears} />
@@ -144,7 +148,7 @@ export default function DashboardPage() {
         {activeTab === "categories" && (
           <Card className="border-slate-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-slate-700">카테고리별 지출</CardTitle>
+              <CardTitle className="text-base text-slate-700">{t("category_breakdown_title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <CategoryChart categories={filteredCategories} transactions={filtered} />
@@ -155,7 +159,7 @@ export default function DashboardPage() {
         {activeTab === "users" && (
           <Card className="border-slate-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-slate-700">사용자별 지출 비교</CardTitle>
+              <CardTitle className="text-base text-slate-700">{t("user_compare_title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <UserCompareChart users={filteredUsers} transactions={filtered} />
@@ -166,7 +170,7 @@ export default function DashboardPage() {
         {activeTab === "merchants" && (
           <Card className="border-slate-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-slate-700">상위 가맹점 Top 20</CardTitle>
+              <CardTitle className="text-base text-slate-700">{t("top_merchants_title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <MerchantChart merchants={filteredMerchants} />
@@ -177,7 +181,7 @@ export default function DashboardPage() {
         {activeTab === "anomalies" && (
           <Card className="border-slate-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-slate-700">이상 거래 감지</CardTitle>
+              <CardTitle className="text-base text-slate-700">{t("anomaly_detection_title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <AnomalyTable anomalies={filteredAnomalies} />

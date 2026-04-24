@@ -3,6 +3,7 @@
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
+import { useT } from "@/lib/i18n/context";
 import type { MerchantData } from "@/lib/types";
 
 const euFmt = (v: number) =>
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function MerchantChart({ merchants }: Props) {
+  const { t } = useT();
   const top20 = merchants.slice(0, 20);
 
   return (
@@ -35,7 +37,7 @@ export function MerchantChart({ merchants }: Props) {
           />
           <Tooltip
             formatter={(v: number, name: string) =>
-              name === "totalAmount" ? [euFmt(v), "총액"] : [v, "건수"]
+              name === "totalAmount" ? [euFmt(v), t("field_gross")] : [v, t("count")]
             }
           />
           <Bar dataKey="totalAmount" radius={[0, 4, 4, 0]} name="totalAmount">
