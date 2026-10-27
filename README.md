@@ -1,6 +1,14 @@
 # Spendalyze
 
-Corporate credit card expense analyzer. Upload Excel files, get interactive dashboards with trends, category breakdowns, user comparisons, merchant rankings, and anomaly detection.
+Corporate credit card expense analyzer. Upload the bank's Excel statements and get interactive dashboards: trends, category breakdowns, spend by cardholder and merchant, and rule-based checks for unusual transactions.
+
+## What · Why · Result
+
+| | |
+|---|---|
+| **What** | A local web app that reads corporate-card Excel statements and builds an expense dashboard in Korean, English or French. |
+| **Why** | Monthly expense reporting was compiled by hand from several bank files. |
+| **Result** | Adopted by the team for monthly reporting: preparation time went from **~10 minutes to ~10 seconds**. |
 
 ## Stack
 
@@ -27,8 +35,8 @@ Then open http://localhost:3000
 - In-memory parsing (no file persistence)
 - Trends by month/quarter/year
 - Category breakdown with drill-down
-- User and merchant rankings
-- Rule-based anomaly detection
+- Spend by cardholder and by merchant
+- Rule-based checks for unusual transactions (possible duplicates, unusually high amounts, missing receipts, weekend spend)
 
 ## Security notes
 
@@ -37,6 +45,6 @@ Then open http://localhost:3000
 - Files are processed in memory and never saved to disk
 - CORS locked to `http://localhost:3000`
 
-## License
+## Note
 
-Private / internal use.
+Shared as a portfolio project. **No company or employee data is included in this repository.**
